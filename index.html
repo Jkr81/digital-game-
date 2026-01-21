@@ -2,253 +2,794 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Decision — Systems Prototype</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The Decision — Deeper Systems Prototype</title>
   <style>
-    body { font-family: system-ui, Arial; margin: 0; background: #111; color: #eee; }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 24px; }
-    .hud { display: grid; gap: 12px; margin-bottom: 18px; }
-    .meter { background: #222; border-radius: 999px; overflow: hidden; height: 14px; }
-    .meter > div { height: 100%; width: 50%; background: #eee; }
-    .row { display: grid; grid-template-columns: 120px 1fr 60px; gap: 12px; align-items: center; }
-    .card { background: #1b1b1b; border: 1px solid #2a2a2a; border-radius: 16px; padding: 18px; }
-    .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-    button { background: #eee; color: #111; border: 0; border-radius: 12px; padding: 10px 14px; cursor: pointer; }
-    button.secondary { background: transparent; color: #eee; border: 1px solid #444; }
-    button:disabled { opacity: .4; cursor: not-allowed; }
-    .muted { color: #aaa; }
+    :root { color-scheme: dark; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#0e0f12; color:#eaeaea; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 18px; }
+    .top { display:flex; gap:12px; flex-wrap:wrap; align-items:stretch; }
+    .card { background:#151820; border:1px solid #242a36; border-radius: 16px; padding: 14px; }
+    .hud { flex: 1 1 420px; }
+    .meta { flex: 1 1 240px; display:flex; flex-direction:column; gap:10px; }
+    .row { display:grid; grid-template-columns: 130px 1fr 60px; gap:10px; align-items:center; margin: 8px 0; }
+    .meter { height: 14px; background:#0b0d12; border:1px solid #2a3242; border-radius: 999px; overflow:hidden; }
+    .meter > div { height:100%; width:50%; background:#eaeaea; }
+    .muted { color:#aab2c5; font-size: 0.95rem; }
+    .screen { margin-top: 12px; }
+    h2 { margin: 0 0 8px 0; font-size: 1.25rem; }
+    h3 { margin: 14px 0 6px; font-size: 1.05rem; }
+    p { margin: 8px 0; line-height: 1.45; }
+    .btns { display:flex; flex-wrap:wrap; gap:10px; margin-top: 12px; }
+    button { background:#eaeaea; color:#0e0f12; border:0; border-radius: 12px; padding: 10px 12px; cursor:pointer; font-weight: 600; }
+    button.secondary { background: transparent; color:#eaeaea; border:1px solid #3a445a; font-weight: 600; }
+    button:disabled { opacity: 0.45; cursor:not-allowed; }
+    .pill { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid #2a3242; border-radius: 999px; }
+    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+    .log { max-height: 180px; overflow:auto; padding:10px; background:#0b0d12; border:1px solid #2a3242; border-radius: 12px; }
+    .log div { margin: 6px 0; }
+    hr { border:0; border-top:1px solid #242a36; margin: 14px 0; }
+    .tag { display:inline-block; padding: 2px 8px; border-radius: 999px; border:1px solid #2a3242; color:#cbd3e8; font-size:0.85rem; }
+    .warn { color:#ffd27a; }
+    .bad { color:#ff9aa2; }
+    .good { color:#b4ffbf; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="hud card">
-      <div class="row">
-        <div>Money</div>
-        <div class="meter"><div id="moneyBar"></div></div>
-        <div id="moneyVal">50</div>
+    <div class="top">
+      <div class="hud card">
+        <div class="row"><div>Money</div><div class="meter"><div id="mMoney"></div></div><div id="vMoney">0</div></div>
+        <div class="row"><div>Relationship</div><div class="meter"><div id="mRel"></div></div><div id="vRel">0</div></div>
+        <div class="row"><div>Pressure</div><div class="meter"><div id="mPress"></div></div><div id="vPress">0</div></div>
+        <div class="row"><div>Stress</div><div class="meter"><div id="mStress"></div></div><div id="vStress">0</div></div>
+        <div class="row"><div>Cat Safety</div><div class="meter"><div id="mCats"></div></div><div id="vCats">0</div></div>
+        <div class="muted">Replayability comes from interacting systems, uncertainty, and delayed consequences.</div>
       </div>
-      <div class="row">
-        <div>Relationship</div>
-        <div class="meter"><div id="relBar"></div></div>
-        <div id="relVal">50</div>
+
+      <div class="meta card">
+        <div class="pill"><strong>Day</strong> <span id="dayLabel">1</span> / 7</div>
+        <div class="pill"><strong>Actions Left</strong> <span id="apLabel">3</span></div>
+        <div class="pill"><strong>Status</strong> <span id="statusLabel" class="muted">Stable</span></div>
+        <div>
+          <div class="muted" style="margin-bottom:6px;">Run Log</div>
+          <div id="log" class="log"></div>
+        </div>
       </div>
-      <div class="row">
-        <div>Pressure</div>
-        <div class="meter"><div id="pressBar"></div></div>
-        <div id="pressVal">0</div>
-      </div>
-      <div class="muted">Outcomes emerge from the meters — not from scripted characters.</div>
     </div>
 
-    <div id="screen" class="card"></div>
+    <div id="screen" class="screen card"></div>
   </div>
 
-  <script>
-    // -------------------------
-    // STATE
-    // -------------------------
-    const state = {
-      money: 55,
-      relationship: 60,
-      pressure: 0,
-      didTalk: false,
-      didHide: false,
-      truthChoice: null,
-      outcome: null
-    };
+<script>
+/* ---------------------------
+   DEEPER SYSTEMS PROTOTYPE
+   Single-file, GitHub Pages ready.
+---------------------------- */
 
-    // -------------------------
-    // UI HELPERS
-    // -------------------------
-    function clamp(n) { return Math.max(0, Math.min(100, n)); }
+const MAX_DAYS = 7;
 
-    function renderHud() {
-      const map = [
-        ["money", "moneyBar", "moneyVal"],
-        ["relationship", "relBar", "relVal"],
-        ["pressure", "pressBar", "pressVal"]
-      ];
-      for (const [key, barId, valId] of map) {
-        const v = clamp(state[key]);
-        document.getElementById(barId).style.width = v + "%";
-        document.getElementById(valId).textContent = v;
-      }
+const state = {
+  day: 1,
+  ap: 3,
+
+  // meters (0-100)
+  money: 55,
+  rel: 62,
+  press: 10,
+  stress: 18,
+  cats: 65,     // "cat safety" (higher is safer)
+
+  // flags / history
+  didNegotiate: false,
+  didTalk: 0,
+  didOvertime: 0,
+  didHide: 0,
+  didFriend: false,
+  didShelter: false,
+  didMovePlan: 0,
+  lied: 0,
+  truth: 0,
+
+  // outcomes
+  catOutcome: null,   // "friend" | "shelter" | "system_removed" | "moved_with_cats" | "cats_gone_unsure"
+  ending: null,
+
+  // run log
+  log: [],
+};
+
+function clamp(v){ return Math.max(0, Math.min(100, v)); }
+function rint(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function chance(p){ return Math.random() < p; }
+
+function addLog(msg){
+  state.log.unshift(`Day ${state.day}: ${msg}`);
+  if(state.log.length > 30) state.log.pop();
+  renderHud();
+}
+
+function meterStatus(){
+  // quick label for the top
+  if(state.press >= 85) return "Critical";
+  if(state.press >= 60) return "Rising";
+  return "Stable";
+}
+
+function renderHud(){
+  const map = [
+    ["money","mMoney","vMoney"],
+    ["rel","mRel","vRel"],
+    ["press","mPress","vPress"],
+    ["stress","mStress","vStress"],
+    ["cats","mCats","vCats"],
+  ];
+  for(const [k,bar,val] of map){
+    const v = clamp(state[k]);
+    document.getElementById(bar).style.width = v + "%";
+    document.getElementById(val).textContent = v;
+  }
+  document.getElementById("dayLabel").textContent = state.day;
+  document.getElementById("apLabel").textContent = state.ap;
+  document.getElementById("statusLabel").textContent = meterStatus();
+  const logEl = document.getElementById("log");
+  logEl.innerHTML = state.log.map(x => `<div>• ${escapeHtml(x)}</div>`).join("");
+}
+
+function escapeHtml(s){
+  return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
+
+function setScreen(html){
+  document.getElementById("screen").innerHTML = html;
+  renderHud();
+}
+
+/* ---------------------------
+   FLOW: INTRO -> DAILY HUB -> EVENTS -> REVEAL -> TRUTH/LIE -> END
+---------------------------- */
+
+function intro(){
+  setScreen(`
+    <h2>The Decision (Deeper Prototype)</h2>
+    <p>You have one week before the housing situation resolves itself. You’re not choosing a single “ending” — you’re managing pressure, money, and trust until the system forces a result.</p>
+    <p class="muted">Goal: survive the week without destroying your relationship or losing control of the situation.</p>
+    <div class="btns">
+      <button onclick="hub()">Start Day 1</button>
+      <button class="secondary" onclick="howTo()">How this works</button>
+    </div>
+  `);
+}
+
+function howTo(){
+  setScreen(`
+    <h2>How to Play</h2>
+    <p>Each day you have <strong>3 actions</strong>. Actions change your meters. At the end of each day, the system rolls an event based on your current state.</p>
+    <div class="grid2">
+      <div class="card">
+        <h3>Emergent Outcomes</h3>
+        <p class="muted">Cats can disappear for different reasons. Your kid may or may not find out. “Bad” outcomes can still be survivable if you prepared well.</p>
+      </div>
+      <div class="card">
+        <h3>Replayability</h3>
+        <p class="muted">Different action paths + random events + delayed moral payoff + state-based endings = new runs feel different.</p>
+      </div>
+    </div>
+    <div class="btns">
+      <button onclick="intro()">Back</button>
+      <button class="secondary" onclick="hub()">Play</button>
+    </div>
+  `);
+}
+
+function hub(){
+  // If already resolved cat outcome, go to aftermath phase
+  if(state.catOutcome) return aftermathHub();
+
+  // If pressure maxed or cats too unsafe, force a reveal event
+  if(state.press >= 100 || state.cats <= 10) return revealEvent("system_forced");
+
+  const warn = (state.press >= 70) ? `<span class="tag warn">Pressure is high</span>` : `<span class="tag">You have time</span>`;
+  const relTag = (state.rel <= 30) ? `<span class="tag bad">Relationship fragile</span>` : `<span class="tag">Relationship ok</span>`;
+  const catTag = (state.cats <= 35) ? `<span class="tag warn">Cats at risk</span>` : `<span class="tag">Cats stable</span>`;
+
+  setScreen(`
+    <h2>Day ${state.day}: Preparation Hub</h2>
+    <p class="muted">Take actions to prepare. Avoiding confrontation increases uncertainty later.</p>
+    <div class="btns">${warn}${relTag}${catTag}</div>
+
+    <hr>
+
+    <h3>Family / Trust</h3>
+    <div class="btns">
+      <button ${state.ap<=0?"disabled":""} onclick="actTalk()">Talk with your kid (honest)</button>
+      <button ${state.ap<=0?"disabled":""} onclick="actQualityTime()">Quality time (no talk)</button>
+      <button ${state.ap<=0?"disabled":""} onclick="actDistance()">Avoid / stay cold</button>
+    </div>
+
+    <h3>Money / Stability</h3>
+    <div class="btns">
+      <button ${state.ap<=0?"disabled":""} onclick="actOvertime()">Work overtime</button>
+      <button ${state.ap<=0?"disabled":""} onclick="actCutCosts()">Cut costs (kid sacrifice)</button>
+      <button ${state.ap<=0?"disabled":""} onclick="actMovePlan()">Search for new place</button>
+    </div>
+
+    <h3>Cat Problem</h3>
+    <div class="btns">
+      <button ${state.ap<=0?"disabled":""} onclick="actNegotiate()">Negotiate accommodations</button>
+      <button ${state.ap<=0?"disabled":""} onclick="actHide()">Hide cats temporarily</button>
+      <button ${state.ap<=0?"disabled":""} onclick="actFriend()">Ask a friend to rehome</button>
+      <button ${state.ap<=0?"disabled":""} onclick="actShelter()">Contact a shelter</button>
+    </div>
+
+    <hr>
+
+    <div class="btns">
+      <button class="secondary" ${state.ap>0?"disabled":""} onclick="endDay()">End day</button>
+      <button class="secondary" onclick="endDay()">End day early</button>
+    </div>
+
+    <p class="muted">Tip: You can “win” different ways. The question is what it costs.</p>
+  `);
+}
+
+/* ---------------------------
+   ACTIONS (consume AP)
+---------------------------- */
+
+function useAP(){
+  state.ap = Math.max(0, state.ap - 1);
+  // stress naturally creeps upward while you act
+  state.stress = clamp(state.stress + 3);
+}
+
+function actTalk(){
+  useAP();
+  state.didTalk++;
+  state.rel = clamp(state.rel + 10);
+  state.press = clamp(state.press - 6);
+  state.stress = clamp(state.stress + 2);
+  addLog("You explained the situation. Trust improves, pressure eases slightly.");
+  hub();
+}
+
+function actQualityTime(){
+  useAP();
+  state.rel = clamp(state.rel + 7);
+  state.money = clamp(state.money - 4);
+  state.press = clamp(state.press + 2);
+  addLog("You showed up for your kid. It helps—money takes a small hit.");
+  hub();
+}
+
+function actDistance(){
+  useAP();
+  state.rel = clamp(state.rel - 8);
+  state.press = clamp(state.press + 6);
+  addLog("You avoided connection. Relationship weakens; pressure grows.");
+  hub();
+}
+
+function actOvertime(){
+  useAP();
+  state.didOvertime++;
+  state.money = clamp(state.money + rint(8,14));
+  state.rel = clamp(state.rel - 4);
+  state.stress = clamp(state.stress + 10);
+  addLog("Overtime boosts money, but drains you and costs time with your kid.");
+  hub();
+}
+
+function actCutCosts(){
+  useAP();
+  // A “kid sacrifice” choice: money up, relationship depends on prior talks
+  const relHit = (state.didTalk > 0) ? 4 : 12;
+  state.money = clamp(state.money + rint(10,16));
+  state.rel = clamp(state.rel - relHit);
+  state.press = clamp(state.press - 2);
+  addLog(`You cut costs. Money improves; relationship takes a hit (${relHit}).`);
+  hub();
+}
+
+function actMovePlan(){
+  useAP();
+  state.didMovePlan++;
+  state.money = clamp(state.money - 6);
+  state.press = clamp(state.press - 6);
+  state.stress = clamp(state.stress + 4);
+  addLog("You searched for housing. Costs time/money, reduces pressure.");
+  hub();
+}
+
+function actNegotiate(){
+  useAP();
+  state.didNegotiate = true;
+  // Negotiation success chance improves with lower stress and higher money (prepared)
+  const success = chance(0.25 + (state.money/400) - (state.stress/500));
+  if(success){
+    state.press = clamp(state.press - 16);
+    state.cats = clamp(state.cats + 10);
+    addLog("Negotiation succeeds: temporary accommodation reduces risk.");
+  } else {
+    state.press = clamp(state.press + 10);
+    state.stress = clamp(state.stress + 6);
+    addLog("Negotiation fails. The system pushes back; pressure rises.");
+  }
+  hub();
+}
+
+function actHide(){
+  useAP();
+  state.didHide++;
+  state.cats = clamp(state.cats + 8);      // temporarily safer
+  state.press = clamp(state.press + 10);   // avoidance increases future risk
+  addLog("You hid the cats. It works—for now. Pressure rises from avoidance.");
+  hub();
+}
+
+function actFriend(){
+  useAP();
+  // friend success chance depends on relationship (you being present) + lower pressure
+  const success = chance(0.30 + (state.rel/300) - (state.press/400));
+  if(success){
+    state.didFriend = true;
+    state.cats = clamp(state.cats + 25);
+    state.press = clamp(state.press - 8);
+    addLog("A friend might take the cats temporarily. Cat safety improves.");
+  } else {
+    state.cats = clamp(state.cats - 10);
+    state.stress = clamp(state.stress + 6);
+    addLog("Your friend can’t help. Cat safety drops; stress rises.");
+  }
+  hub();
+}
+
+function actShelter(){
+  useAP();
+  // shelter is reliable but morally heavy; relationship response depends on honesty later
+  state.didShelter = true;
+  state.cats = clamp(state.cats + 18);
+  state.rel = clamp(state.rel - 6);
+  state.press = clamp(state.press - 6);
+  addLog("You contacted a shelter. It’s safer, but your kid senses something is off.");
+  hub();
+}
+
+/* ---------------------------
+   END OF DAY + RANDOM EVENTS
+---------------------------- */
+
+function endDay(){
+  // If no actions used, still time passes
+  const used = 3 - state.ap;
+  // daily drift
+  state.press = clamp(state.press + 12);
+  state.money = clamp(state.money - rint(4,8)); // normal expenses
+  state.cats = clamp(state.cats - rint(2,6));   // risk slowly increases
+  state.stress = clamp(state.stress + rint(2,6));
+
+  // Event roll influenced by state
+  runDailyEvent();
+
+  // Advance day or force resolution
+  if(state.press >= 100 || state.day >= MAX_DAYS || state.cats <= 10){
+    return revealEvent("deadline_or_collapse");
+  }
+
+  state.day++;
+  state.ap = 3;
+  hub();
+}
+
+function runDailyEvent(){
+  // Choose one event. Probabilities based on state.
+  const events = [];
+
+  // inspection more likely when pressure high / cats low
+  const inspP = 0.10 + (state.press/250) + ((50 - state.cats)/300);
+  events.push({name:"inspection", p: clamp(inspP*100)/100});
+
+  // money shock more likely when money low
+  const feeP = 0.10 + ((50 - state.money)/300);
+  events.push({name:"fee", p: clamp(feeP*100)/100});
+
+  // overtime opportunity (helps money, costs rel)
+  const workP = 0.12 + (state.press/400);
+  events.push({name:"work", p: clamp(workP*100)/100});
+
+  // kid overhears (if you’ve been distant)
+  const hearP = 0.08 + ((40 - state.rel)/300);
+  events.push({name:"overhear", p: clamp(hearP*100)/100});
+
+  // pick weighted
+  const pick = weightedPick(events);
+  applyEvent(pick);
+}
+
+function weightedPick(list){
+  const total = list.reduce((a,x)=>a+x.p,0);
+  let roll = Math.random()*total;
+  for(const item of list){
+    roll -= item.p;
+    if(roll <= 0) return item.name;
+  }
+  return list[list.length-1].name;
+}
+
+function applyEvent(name){
+  if(name === "inspection"){
+    const caught = chance(0.25 + (state.press/250) - (state.didNegotiate?0.12:0));
+    if(caught){
+      state.press = clamp(state.press + 18);
+      state.cats = clamp(state.cats - 20);
+      addLog("A surprise inspection spikes risk. The system closes in.");
+    } else {
+      state.press = clamp(state.press + 6);
+      addLog("Rumors of an inspection raise pressure, but nothing happens today.");
     }
+  }
+  if(name === "fee"){
+    const fee = rint(8,18);
+    state.money = clamp(state.money - fee);
+    state.stress = clamp(state.stress + 8);
+    addLog(`A surprise expense hits (-${fee} money).`);
+  }
+  if(name === "work"){
+    const gain = rint(6,12);
+    state.money = clamp(state.money + gain);
+    state.rel = clamp(state.rel - 5);
+    state.stress = clamp(state.stress + 6);
+    addLog(`Extra hours appear (+${gain} money), but it costs family time.`);
+  }
+  if(name === "overhear"){
+    // overhear is more damaging if you hid/sheltered
+    const hit = (state.didHide || state.didShelter) ? 12 : 6;
+    state.rel = clamp(state.rel - hit);
+    addLog(`Your kid overhears something. Relationship drops (-${hit}).`);
+  }
+}
 
-    function setScreen(html) {
-      document.getElementById("screen").innerHTML = html;
-      renderHud();
-    }
+/* ---------------------------
+   REVEAL EVENT (Delayed payoff)
+---------------------------- */
 
-    // -------------------------
-    // GAME FLOW
-    // -------------------------
-    function intro() {
-      setScreen(`
-        <h2>Home Situation</h2>
-        <p>Money has been tight for months. A housing rule changes everything.</p>
+function revealEvent(reason){
+  // Determine what happened to the cats based on state and earlier actions.
+  // The point: outcomes emerge; some ambiguity remains.
+  let outcome = null;
+
+  // If player planned to move enough, they can move with cats
+  if(state.didMovePlan >= 3 && state.money >= 35){
+    outcome = "moved_with_cats";
+  } else if(state.didFriend && chance(0.70)){
+    outcome = "friend";
+  } else if(state.didShelter && chance(0.80)){
+    outcome = "shelter";
+  } else if(state.didHide > 0){
+    // hiding increases uncertainty: either shelter (you did it), or system removed
+    outcome = chance(0.55) ? "cats_gone_unsure" : "system_removed";
+  } else {
+    outcome = "system_removed";
+  }
+
+  state.catOutcome = outcome;
+
+  // Apply immediate meter effects (system-based)
+  if(outcome === "moved_with_cats"){
+    state.money = clamp(state.money - rint(10,20));
+    state.press = clamp(state.press - 30);
+    state.stress = clamp(state.stress + 10);
+    addLog("You moved. Money drops, pressure eases. The cats remain with you.");
+  }
+  if(outcome === "friend"){
+    state.press = clamp(state.press - 18);
+    state.cats = 90;
+    addLog("The cats are with a friend for now. The immediate risk decreases.");
+  }
+  if(outcome === "shelter"){
+    state.rel = clamp(state.rel - 8);
+    state.press = clamp(state.press - 12);
+    addLog("The shelter takes the cats. It’s safer… and heavier.");
+  }
+  if(outcome === "system_removed"){
+    state.rel = clamp(state.rel - 18);
+    state.press = 100;
+    addLog("The system intervenes. The cats are gone. You lost control of the timeline.");
+  }
+  if(outcome === "cats_gone_unsure"){
+    state.rel = clamp(state.rel - 10);
+    state.press = 95;
+    addLog("A cat disappears. You know more than you’re ready to say.");
+  }
+
+  // Now present the reveal screen
+  let revealText = "";
+  if(outcome === "moved_with_cats") revealText = "You secured a new place. Rent is higher, but the cats are still here.";
+  if(outcome === "friend") revealText = "The cats aren’t home. They’re safe with someone else… for now.";
+  if(outcome === "shelter") revealText = "The cats aren’t home. You made arrangements. Your kid can tell something changed.";
+  if(outcome === "system_removed") revealText = "The cats are gone. It happened fast. You can’t pretend the system didn’t do this.";
+  if(outcome === "cats_gone_unsure") revealText = "A cat is gone. The cause is unclear—unless you decide to explain it.";
+
+  setScreen(`
+    <h2>Delayed Moral Payoff</h2>
+    <p>${revealText}</p>
+    <p class="muted">Next: do you tell the truth, lie, or stay silent?</p>
+    <div class="btns">
+      <button onclick="truthLie()">Continue</button>
+    </div>
+  `);
+}
+
+function truthLie(){
+  const outcome = state.catOutcome;
+  // options depend on ambiguity
+  const canBlameSystem = (outcome === "system_removed" || outcome === "cats_gone_unsure");
+  const canHalfTruth = (outcome === "friend" || outcome === "shelter" || outcome === "cats_gone_unsure");
+
+  setScreen(`
+    <h2>What do you tell your kid?</h2>
+    <p class="muted">Your choice changes relationship now — and future custody risk later.</p>
+    <div class="btns">
+      <button onclick="chooseTruth()">Tell the truth</button>
+      <button ${canHalfTruth?"":"disabled"} onclick="chooseHalfTruth()">Partial truth</button>
+      <button ${canBlameSystem?"":"disabled"} onclick="chooseLie()">Lie and blame the system</button>
+      <button class="secondary" onclick="chooseSilent()">Say nothing</button>
+    </div>
+  `);
+}
+
+function chooseTruth(){
+  state.truth++;
+  // Truth helps if you invested in talks; hurts if the outcome is harsh
+  let delta = (state.didTalk > 0) ? 10 : 2;
+  if(state.catOutcome === "shelter") delta -= 4;
+  if(state.catOutcome === "system_removed") delta -= 6;
+  state.rel = clamp(state.rel + delta);
+  state.stress = clamp(state.stress + 4);
+  addLog(`You told the truth. Relationship change: ${delta>=0?"+":""}${delta}.`);
+  resolveEnding();
+}
+
+function chooseHalfTruth(){
+  // Partial truth keeps options open; slightly risky
+  let delta = 3;
+  if(state.didTalk === 0) delta = -2;
+  state.rel = clamp(state.rel + delta);
+  state.press = clamp(state.press + 4);
+  state.stress = clamp(state.stress + 3);
+  addLog(`You gave a partial truth. Relationship change: ${delta>=0?"+":""}${delta}.`);
+  resolveEnding();
+}
+
+function chooseLie(){
+  state.lied++;
+  // Lie gives short-term stability, long-term risk via stress and future penalty
+  state.rel = clamp(state.rel - 14);
+  state.press = clamp(state.press + 6);
+  state.stress = clamp(state.stress + 10);
+  addLog("You lied. Relationship drops hard. Stress rises.");
+  resolveEnding();
+}
+
+function chooseSilent(){
+  state.rel = clamp(state.rel - 8);
+  state.press = clamp(state.press + 5);
+  addLog("You said nothing. Silence creates distance.");
+  resolveEnding();
+}
+
+/* ---------------------------
+   AFTERMATH: play through consequences
+---------------------------- */
+
+function aftermathHub(){
+  // This is a “post-decision play” layer: you can still act, but under a new reality.
+  if(state.day > MAX_DAYS) return resolveEnding();
+
+  setScreen(`
+    <h2>Aftermath Phase (Day ${state.day})</h2>
+    <p>Now you live with the state you created. You can still stabilize money or repair trust — but it’s harder.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Repair Trust</h3>
+        <p class="muted">Harder if you lied or avoided earlier.</p>
         <div class="btns">
-          <button onclick="hub()">Continue</button>
+          <button ${state.ap<=0?"disabled":""} onclick="afterApology()">Apologize + take responsibility</button>
+          <button ${state.ap<=0?"disabled":""} onclick="afterPromises()">Make promises (risky)</button>
         </div>
-      `);
-    }
+      </div>
 
-    function hub() {
-      // pressure rises over time to force resolution
-      setScreen(`
-        <h2>Preparation Hub</h2>
-        <p class="muted">Take actions to prepare. Pressure rises as time passes.</p>
-
+      <div class="card">
+        <h3>Stabilize Life</h3>
+        <p class="muted">Money and stress now determine custody stability.</p>
         <div class="btns">
-          <button onclick="qualityTime()">Spend quality time with your kid</button>
-          <button onclick="checkFinances()">Reallocate finances</button>
-          <button onclick="hideCats()">Hide the cats (avoid confrontation)</button>
-          <button class="secondary" onclick="wait()">Wait</button>
+          <button ${state.ap<=0?"disabled":""} onclick="afterWork()">Work extra shifts</button>
+          <button ${state.ap<=0?"disabled":""} onclick="afterRoutine()">Build routine at home</button>
         </div>
+      </div>
+    </div>
 
-        <hr style="border:0;border-top:1px solid #2a2a2a;margin:18px 0;">
+    <hr>
+    <div class="btns">
+      <button class="secondary" ${state.ap>0?"disabled":""} onclick="endDayAfter()">End day</button>
+      <button class="secondary" onclick="endDayAfter()">End day early</button>
+    </div>
+  `);
+}
 
-        <div class="btns">
-          <button onclick="forceDecision()">Proceed to ultimatum</button>
-        </div>
-      `);
-    }
+function afterApology(){
+  useAP();
+  let delta = 10;
+  if(state.lied > 0) delta = 6;
+  if(state.rel < 25) delta = 4;
+  state.rel = clamp(state.rel + delta);
+  state.stress = clamp(state.stress + 3);
+  addLog(`You apologized. Relationship +${delta}.`);
+  aftermathHub();
+}
 
-    function qualityTime() {
-      state.relationship = clamp(state.relationship + 10);
-      state.money = clamp(state.money - 5);
-      state.pressure = clamp(state.pressure + 10);
-      state.didTalk = true;
-      hub();
-    }
+function afterPromises(){
+  useAP();
+  // promises can backfire if money is low
+  const backfire = (state.money < 30) && chance(0.55);
+  if(backfire){
+    state.rel = clamp(state.rel - 8);
+    state.stress = clamp(state.stress + 8);
+    addLog("Promises feel hollow. Relationship drops.");
+  } else {
+    state.rel = clamp(state.rel + 5);
+    addLog("Promises give a small lift—for now.");
+  }
+  aftermathHub();
+}
 
-    function checkFinances() {
-      state.money = clamp(state.money + 10);
-      state.relationship = clamp(state.relationship - 5);
-      state.pressure = clamp(state.pressure + 10);
-      hub();
-    }
+function afterWork(){
+  useAP();
+  const gain = rint(7,13);
+  state.money = clamp(state.money + gain);
+  state.rel = clamp(state.rel - 3);
+  state.stress = clamp(state.stress + 9);
+  addLog(`Extra shifts: +${gain} money, but stress rises.`);
+  aftermathHub();
+}
 
-    function hideCats() {
-      state.didHide = true;
-      state.pressure = clamp(state.pressure + 15);
-      hub();
-    }
+function afterRoutine(){
+  useAP();
+  state.stress = clamp(state.stress - 8);
+  state.rel = clamp(state.rel + 3);
+  addLog("You built routine and stability. Stress drops; trust inches up.");
+  aftermathHub();
+}
 
-    function wait() {
-      state.pressure = clamp(state.pressure + 20);
-      if (state.pressure >= 100) return revealEvent();
-      hub();
-    }
+function endDayAfter(){
+  // post-decision daily drift
+  state.press = clamp(state.press - 10);         // pressure naturally resolves after decision
+  state.money = clamp(state.money - rint(4,8));  // expenses remain
+  state.stress = clamp(state.stress + rint(1,4));
 
-    function forceDecision() {
-      // if pressure max, event reveals first
-      if (state.pressure >= 100) return revealEvent();
+  // advance day
+  state.day++;
+  state.ap = 3;
 
-      setScreen(`
-        <h2>The Ultimatum</h2>
-        <p>You must either keep your current rent OR keep the cats. You can’t keep both.</p>
+  if(state.day > MAX_DAYS) return resolveEnding();
+  aftermathHub();
+}
 
-        <div class="btns">
-          <button onclick="chooseSaveMoney()">Save money (cats are gone)</button>
-          <button onclick="chooseKeepCats()">Keep cats (risk higher rent)</button>
-          <button class="secondary" onclick="wait()">Delay</button>
-        </div>
-      `);
-    }
+/* ---------------------------
+   ENDING RESOLUTION
+---------------------------- */
 
-    function chooseSaveMoney() {
-      state.money = clamp(state.money + 15);
-      state.relationship = clamp(state.relationship - 25);
-      state.outcome = "cats_removed_by_player";
-      revealTruthLie();
-    }
+function resolveEnding(){
+  // Determine ending from combinations (not a single branch)
+  // Add a "custody stability" implicit score.
+  let custody = 50;
+  custody += (state.rel - 50) * 0.7;
+  custody += (state.money - 50) * 0.4;
+  custody -= (state.stress - 40) * 0.6;
+  custody -= (state.lied * 8);
+  custody = clamp(Math.round(custody));
 
-    function chooseKeepCats() {
-      // rent risk: random cost
-      const rentHit = Math.random() < 0.5 ? 10 : 25;
-      state.money = clamp(state.money - rentHit);
-      state.relationship = clamp(state.relationship + 10);
-      state.outcome = "moved_with_cats";
-      revealTruthLie();
-    }
+  let ending = "";
+  let title = "";
 
-    function revealEvent() {
-      // delayed moral payoff (system resolves ambiguity)
-      const roll = Math.random();
-      if (state.didHide && roll < 0.5) state.outcome = "cats_taken_by_system";
-      else if (state.didHide && roll >= 0.5) state.outcome = "cats_shelter_by_player";
-      else state.outcome = "cats_taken_by_system";
+  // Core narrative-based endings derived from systems
+  if(state.rel <= 22){
+    title = "Custody Break";
+    ending = "Your kid turns away. They choose to stay with their mother. The bond collapses under the week’s choices.";
+  } else if(state.money <= 18){
+    title = "Financial Collapse";
+    ending = "You kept parts of your family intact, but money spirals. The stress becomes its own antagonist.";
+  } else if(state.catOutcome === "moved_with_cats" && state.rel >= 55){
+    title = "Hard Choice, Intact Bond";
+    ending = "You moved and absorbed the cost. Trust holds because you prepared and stayed emotionally present.";
+  } else if(state.catOutcome === "shelter" && state.truth > 0 && state.rel >= 45){
+    title = "Truth With Consequences";
+    ending = "You made a painful call, then owned it. The relationship strains but doesn’t break.";
+  } else if(state.catOutcome === "system_removed"){
+    title = "System Wins";
+    ending = "You waited too long. The system resolved the problem for you, and the aftermath is colder than you expected.";
+  } else {
+    title = "Survival";
+    ending = "You got through the week. The damage depends on what you prioritized—and what you avoided.";
+  }
 
-      setScreen(`
-        <h2>Something happens…</h2>
-        <p>One of the cats is gone.</p>
-        <p class="muted">You don’t immediately know why.</p>
-        <div class="btns">
-          <button onclick="revealTruthLie()">Continue</button>
-        </div>
-      `);
-    }
+  state.ending = title;
 
-    function revealTruthLie() {
-      setScreen(`
-        <h2>Do you tell your kid what happened?</h2>
-        <div class="btns">
-          <button onclick="truth()">Tell the truth</button>
-          <button onclick="lie()">Lie and blame the system</button>
-          <button class="secondary" onclick="silent()">Say nothing</button>
-        </div>
-      `);
-    }
+  // Build summary + replay hooks
+  const hooks = [
+    (state.didMovePlan >= 3) ? "You explored moving seriously." : "You rarely looked for a new place.",
+    (state.didHide > 0) ? "You tried avoidance tactics (hiding)." : "You didn’t try hiding tactics.",
+    (state.didFriend) ? "You involved a friend." : "You never involved a friend.",
+    (state.didShelter) ? "You contacted a shelter." : "You never contacted a shelter.",
+    (state.lied > 0) ? "You lied at least once." : "You never lied."
+  ];
 
-    function truth() {
-      state.truthChoice = "truth";
-      state.relationship = clamp(state.relationship + (state.didTalk ? 5 : -5));
-      ending();
-    }
+  setScreen(`
+    <h2>Ending: ${title}</h2>
+    <p>${ending}</p>
 
-    function lie() {
-      state.truthChoice = "lie";
-      state.relationship = clamp(state.relationship - 15);
-      ending();
-    }
+    <div class="grid2">
+      <div class="card">
+        <h3>Run Summary</h3>
+        <p class="muted">
+          Cat Outcome: <strong>${state.catOutcome}</strong><br>
+          Custody Stability: <strong>${custody}</strong><br>
+          Truth/Lies: <strong>${state.truth}</strong> / <strong>${state.lied}</strong>
+        </p>
+        <p class="muted">${hooks.map(x => `• ${x}`).join("<br>")}</p>
+      </div>
+      <div class="card">
+        <h3>Replay Goals</h3>
+        <p class="muted">Try a run where you:</p>
+        <p class="muted">
+          • Move early (housing search every day)<br>
+          • Never hide (no avoidance)<br>
+          • Max relationship first, then solve money<br>
+          • Lie once and see how it snowballs<br>
+          • Let pressure hit 100 and compare outcomes
+        </p>
+      </div>
+    </div>
 
-    function silent() {
-      state.truthChoice = "silent";
-      state.relationship = clamp(state.relationship - 10);
-      ending();
-    }
+    <div class="btns">
+      <button onclick="resetRun()">Replay</button>
+      <button class="secondary" onclick="intro()">Back to start</button>
+    </div>
+  `);
+}
 
-    function ending() {
-      // Simple ending logic from meters
-      let endingText = "";
-      if (state.relationship <= 25) endingText = "Your kid leaves to live with their mother. The bond breaks.";
-      else if (state.money <= 25) endingText = "You keep what matters, but money collapses. Stress takes over.";
-      else endingText = "You survive — financially and emotionally — but nothing feels the same.";
+function resetRun(){
+  // reset without reloading
+  state.day = 1;
+  state.ap = 3;
+  state.money = 55;
+  state.rel = 62;
+  state.press = 10;
+  state.stress = 18;
+  state.cats = 65;
 
-      setScreen(`
-        <h2>Aftermath</h2>
-        <p>${endingText}</p>
-        <p class="muted">Outcome: <strong>${state.outcome}</strong> • Honesty: <strong>${state.truthChoice}</strong></p>
-        <div class="btns">
-          <button onclick="resetGame()">Replay</button>
-        </div>
-      `);
-    }
+  state.didNegotiate = false;
+  state.didTalk = 0;
+  state.didOvertime = 0;
+  state.didHide = 0;
+  state.didFriend = false;
+  state.didShelter = false;
+  state.didMovePlan = 0;
+  state.lied = 0;
+  state.truth = 0;
 
-    function resetGame() {
-      state.money = 55;
-      state.relationship = 60;
-      state.pressure = 0;
-      state.didTalk = false;
-      state.didHide = false;
-      state.truthChoice = null;
-      state.outcome = null;
-      intro();
-    }
+  state.catOutcome = null;
+  state.ending = null;
+  state.log = [];
+  addLog("New run started.");
+  hub();
+}
 
-    // start
-    intro();
-  </script>
+// start
+addLog("Prototype loaded.");
+intro();
+</script>
 </body>
 </html>
